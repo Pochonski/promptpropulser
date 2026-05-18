@@ -36,33 +36,73 @@ LLM-as-Judge (Claude Haiku) → Quality Score → Validated Response
 
 ## Quick Start
 
-### As a Claude Skill
+### Install as Skill (One Command)
 
-Load `prompts/system_prompt.md` as a Claude project:
+```bash
+# Linux / macOS
+curl -sSL https://raw.githubusercontent.com/Pochonski/promptpropulser/master/install.sh | bash
 
-1. Go to https://claude.ai → Projects
-2. Create a new project
-3. Paste the contents of `prompts/system_prompt.md` into the system instructions
-4. Start chatting — Claude is now PromptPropulserClaude
-
-```text
-You: /ppc code "Crea una API FastAPI sin base de datos compatible con Python 3.12"
-Claude: [analyzes, locks constraints, reinforces, echoes, validates, responds]
+# Windows (PowerShell)
+iwr -Uri https://raw.githubusercontent.com/Pochonski/promptpropulser/master/install.ps1 -OutFile install.ps1; ./install.ps1
 ```
 
-### As a Python CLI
+Or manually:
+
+```bash
+git clone https://github.com/Pochonski/promptpropulser ~/.claude/skills/promptpropulser
+```
+
+### Supported Agents
+
+| Agent | Skill Path |
+|-------|-----------|
+| **Claude Code** | `~/.claude/skills/promptpropulser/` |
+| **Cursor** | `~/.cursor/skills/promptpropulser/` |
+| **OpenCode** | `~/.config/opencode/skills/promptpropulser/` |
+| **OpenAI Codex** | `~/.codex/skills/promptpropulser/` |
+| **Google Antigravity** | `~/.gemini/antigravity/skills/promptpropulser/` |
+
+The install script copies `SKILL.md` to all detected agent directories.
+
+### Usage
+
+Just chat normally. PPC auto-detects the mode from your prompt:
+
+```text
+You: "Haz una API FastAPI sin base de datos en Python 3.12"
+PPC:  [auto-detects code mode → locks constraints → reinforces → responds]
+
+You: "Audita la seguridad de este endpoint JWT"
+PPC:  [auto-detects brutal mode → maximum reinforcement → contradiction attack]
+
+You: "Explicame Docker como si tuviera 10 anos"
+PPC:  [auto-detects teacher mode → progressive explanation → analogies]
+```
+
+No commands needed. The skill activates when keywords match.
+
+### Force a specific mode
+
+```text
+/ppc brutal — Analiza este sistema OAuth2
+/ppc focus — Migra esto sin cambiar el esquema ni usar ORM
+/ppc code — Implementa un rate limiter sin Redis
+```
+
+---
+
+### Advanced: Python CLI + API
+
+For programmatic use with benchmarks, FastAPI server, and LangChain integration:
 
 ```bash
 pip install promptpropulser
 
-# Requires ANTHROPIC_API_KEY
 export ANTHROPIC_API_KEY="sk-ant-..."
 
-# Optimize + send to Claude + LLM judge evaluation
-ppc --run code "Crea una API en FastAPI compatible con Python 3.12 sin base de datos"
-
-# A/B test: raw vs PPC-optimized
-ppc --ab code "Haz un sistema de autenticacion JWT seguro"
+ppc --run code "Crea una API FastAPI sin base de datos"
+ppc --ab brutal "Audita la seguridad de este JWT"
+ppc --retry focus "Migra sin cambiar el esquema"
 
 # Self-improvement loop (auto-retry on low scores)
 ppc --retry focus "Migra este servicio a AWS sin usar Docker ni cambiar el esquema de DB"
