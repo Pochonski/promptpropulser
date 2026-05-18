@@ -1,0 +1,17 @@
+/ppc basic — Minimal optimization for simple, fast responses.
+
+INPUT:
+"Cual es la capital de Francia?"
+
+PPC PIPELINE:
+- Mode: basic
+- Complexity: 0 (simple)
+- Reflection: disabled
+- Reinforcement: low
+- Echo: none
+- Lock: disabled
+
+OPTIMIZED OUTPUT:
+"Capital de Francia?"
+
+Tokens: 4 in → 4 out (0 optimization)

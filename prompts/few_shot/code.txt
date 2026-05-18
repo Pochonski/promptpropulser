@@ -1,0 +1,43 @@
+/ppc code — Programming-optimized with syntax, edge-case, and compatibility checks.
+
+INPUT:
+"Haz una API en FastAPI compatible con Python 3.12 y no uses base de datos"
+
+PPC PIPELINE:
+- Mode: code
+- Complexity: 45 (medium)
+- Reflection depth: 2
+- Reinforcement: aggressive
+- Echo: medium
+- Lock: aggressive
+- Multi-pass: yes
+
+OPTIMIZED OUTPUT:
+```
+LOCKED CONSTRAINTS (NON-NEGOTIABLE):
+  [1] No database usage.
+  [2] Compatible with Python 3.12.
+
+PRIMARY TASK: Create
+
+Create a FastAPI API.
+
+ABSOLUTE PRIORITY:
+  - compatible with Python 3.12
+  - no database usage
+
+[ECHO] The solution must avoid any database dependency entirely.
+[ECHO] Ensure compatibility with Python 3.12 as a core requirement.
+
+PRE-RESPONSE VALIDATION:
+  [ ] Verified: Python 3.12 type hints used (PEP 695, etc.)
+  [ ] Verified: no SQLAlchemy, SQLite, or database imports
+  [ ] Verified: only FastAPI + Python stdlib dependencies
+  [ ] Verified: pydantic v2 compatible
+  [ ] Verified: no ORM patterns or repository layers
+
+CODE-SPECIFIC CHECKS:
+  - Edge cases: empty payloads, invalid types, large requests
+  - Performance: async endpoints where appropriate
+  - Security: input validation on all endpoints
+```

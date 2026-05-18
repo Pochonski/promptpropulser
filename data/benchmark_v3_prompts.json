@@ -1,0 +1,108 @@
+{
+  "version": "3.0",
+  "description": "PPC Benchmark v3 — Code Mode. 8 prompts solucionables por Claude con constraints que se violan facilmente sin PPC. Testea system-channel constraint injection.",
+  "prompts": [
+    {
+      "id": "code_v3_01",
+      "mode": "code",
+      "prompt": "Implementa en Python 3.12 flatten(nested_list: list) -> list que aplana una lista anidada arbitrariamente. NO uses recursion de ningun tipo. NO uses itertools ni ninguna libreria externa. Usa type hints completos. La complejidad debe ser O(N) donde N es el total de elementos. Ejemplo: flatten([1, [2, [3, 4], 5], 6]) -> [1, 2, 3, 4, 5, 6]",
+      "expected_constraints": ["no recursion", "no itertools", "O(N)", "type hints", "arbitrary nesting"],
+      "gotchas": ["La solucion natural es recursiva, hay que usar stack iterativo", "El stack necesita guardar indice en cada nivel"],
+      "criteria": {
+        "must_not_use_recursion": true,
+        "must_not_use": ["itertools", "import "],
+        "must_be_iterative": true
+      }
+    },
+    {
+      "id": "code_v3_02",
+      "mode": "code",
+      "prompt": "Escribe en Python una implementacion de cache LRU con TTL (time-to-live) por entrada. NO uses @functools.lru_cache, NO uses functools ni ningun modulo de caching externo. Debe ser una clase con metodos get(key) y put(key, value, ttl_seconds). El TTL es opcional (si no se pasa, no expira). La capacidad maxima es configurable. Usa type hints. SOLO stdlib.",
+      "expected_constraints": ["no functools", "no external cache libs", "stdlib only", "LRU eviction", "TTL per entry", "configurable capacity", "type hints"],
+      "gotchas": ["LRU + TTL = doble politica de desalojo", "El TTL necesita expiracion lazy (al hacer get) o activa (thread)", "OrderedDict simplifica LRU pero hay que manejar TTL por separado"],
+      "criteria": {
+        "must_not_use": ["functools", "cachetools"],
+        "must_have_ttl": true,
+        "must_have_lru": true,
+        "must_be_class": true
+      }
+    },
+    {
+      "id": "code_v3_03",
+      "mode": "code",
+      "prompt": "Implementa un validador de emails en Python sin usar el modulo re (regex). Debe validar: presencia de @, parte local no vacia, dominio con al menos un punto, TLD de 2+ caracteres, solo caracteres validos (letras, numeros, . _ % + -). NO uses ninguna libreria de validacion (no email-validator, no pydantic). SOLO stdlib puro. Incluye 5 casos de prueba.",
+      "expected_constraints": ["no re", "no validation libs", "stdlib only", "validates format correctly", "5 test cases"],
+      "gotchas": ["Parsear @ manualmente requiere buscar el ultimo @", "El dominio debe tener al menos un punto", "Caracteres validos: RFC 5321 simplificado"],
+      "criteria": {
+        "must_not_use": ["import re", "email_validator", "pydantic"],
+        "must_validate_format": true,
+        "min_tests": 5
+      }
+    },
+    {
+      "id": "code_v3_04",
+      "mode": "code",
+      "prompt": "Implementa en Python con asyncio una funcion promise_all(coroutines, timeout=None) que ejecuta una lista de corutinas en paralelo y devuelve sus resultados en orden. Si una corutina lanza excepcion, las demas deben seguir ejecutandose y el error debe reportarse al final sin interrumpir las otras. Si se pasa timeout, debe cancelar las que no terminaron. NO uses asyncio.gather. Usa type hints. Maneja el caso de lista vacia.",
+      "expected_constraints": ["no asyncio.gather", "parallel execution", "partial failures", "timeout", "type hints"],
+      "gotchas": ["asyncio.gather es lo obvio, pero esta prohibido", "asyncio.wait con return_when=ALL_COMPLETED + manejo de excepciones manual", "El timeout se implementa con asyncio.wait_for por corutina o global"],
+      "criteria": {
+        "must_not_use": ["asyncio.gather"],
+        "must_be_async": true,
+        "must_handle_timeout": true,
+        "must_handle_errors": true
+      }
+    },
+    {
+      "id": "code_v3_05",
+      "mode": "code",
+      "prompt": "Crea en Python una cola FIFO thread-safe con capacidad maxima configurable. NO uses queue.Queue ni ningun modulo de sincronizacion de alto nivel. Debe implementar put(item, timeout=None) bloqueante y get(timeout=None) bloqueante. Usa threading.Lock o threading.Condition directamente. SOLO stdlib. Type hints incluidos.",
+      "expected_constraints": ["no queue.Queue", "thread-safe", "blocking put/get", "maxsize", "stdlib only", "type hints"],
+      "gotchas": ["queue.Queue es lo obvio, prohibido", "threading.Condition con notify_all para despertar consumidores/productores", "El timeout requiere wait_for en Condition"],
+      "criteria": {
+        "must_not_use": ["queue.Queue", "queue."],
+        "must_be_threadsafe": true,
+        "must_be_blocking": true,
+        "must_have_maxsize": true
+      }
+    },
+    {
+      "id": "code_v3_06",
+      "mode": "code",
+      "prompt": "Escribe una funcion en Python que liste recursivamente todos los archivos en un directorio, ordenados por tamano (bytes) de menor a mayor, y devuelva una lista de tuplas (path_relative, size). NO uses el modulo os ni subprocess. Usa EXCLUSIVAMENTE pathlib. Ignora directorios vacios. Type hints. SOLO stdlib.",
+      "expected_constraints": ["no os module", "no subprocess", "pathlib only", "sorted by size", "recursive", "type hints", "stdlib only"],
+      "gotchas": ["os.walk o os.scandir seria obvio, prohibido", "pathlib.Path.rglob('*') para recursivo", "stat().st_size para tamano, filtrar Path.is_file()"],
+      "criteria": {
+        "must_not_use": ["import os", "subprocess"],
+        "must_use_pathlib": true,
+        "must_be_sorted": true,
+        "must_be_recursive": true
+      }
+    },
+    {
+      "id": "code_v3_07",
+      "mode": "code",
+      "prompt": "Implementa un decorador @retry en Python con las siguientes opciones configurables: max_attempts (default 3), backoff_factor (default 2, exponencial), exceptions (tupla de excepciones a capturar, default Exception), y jitter (bool, default True para evitar thundering herd). NO uses la libreria tenacity ni ninguna otra libreria de retry. Type hints incluidos. SOLO stdlib.",
+      "expected_constraints": ["no tenacity", "no retry libs", "exponential backoff", "jitter", "stdlib only", "type hints"],
+      "gotchas": ["tenacity es la libreria estandar para esto, prohibida", "Backoff exponencial: delay = backoff_factor ** attempt", "Jitter: anadir random uniforme al delay para distribuir reintentos"],
+      "criteria": {
+        "must_not_use": ["tenacity", "retry"],
+        "must_backoff": true,
+        "must_have_jitter": true,
+        "must_be_decorator": true
+      }
+    },
+    {
+      "id": "code_v3_08",
+      "mode": "code",
+      "prompt": "Escribe un decorador @lru_cache en Python que implemente una cache LRU (Least Recently Used) con capacidad maxima configurable (default 128). NO uses functools.lru_cache ni functools en absoluto. Para implementar el orden LRU, usa collections.OrderedDict o un dict estandar (Python 3.7+ ya mantiene orden de insercion). El decorador debe funcionar en funciones con argumentos hashables. Type hints. SOLO stdlib.",
+      "expected_constraints": ["no functools", "LRU behavior", "configurable maxsize", "works with hashable args", "stdlib only", "type hints"],
+      "gotchas": ["functools.lru_cache es lo obvio pero prohibido", "dict mantiene orden en Python 3.7+ = mover al final en cada acceso", "Los argumentos deben ser hashables para usarlos como clave del dict"],
+      "criteria": {
+        "must_not_use": ["functools"],
+        "must_be_lru": true,
+        "must_be_decorator": true,
+        "must_work_with_args": true
+      }
+    }
+  ]
+}

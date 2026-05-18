@@ -1,0 +1,52 @@
+/ppc teacher — Pedagogical mode with progressive explanation and adaptive complexity.
+
+INPUT:
+"Explicame como funciona el garbage collector de Python"
+
+PPC PIPELINE:
+- Mode: teacher
+- Complexity: 38 (medium)
+- Reflection depth: 1
+- Reinforcement: low
+- Echo: low
+- Lock: soft_only
+- Multi-pass: no
+
+OPTIMIZED OUTPUT:
+```
+TEACHING MODE ACTIVE — Progressive Explanation
+
+PRIMARY TASK: Explain
+
+Explain how Python's garbage collector works.
+
+EXPLANATION STRUCTURE:
+  1. The Problem (WHY do we need GC?)
+     - Memory is finite. Programs create objects. Objects must be freed.
+  
+  2. Simple Solution: Reference Counting
+     - Analogy: A library book. Each borrower = +1 reference. When zero → return.
+     - Python's primary mechanism: every object has a refcount.
+     - Limitation: circular references (A→B, B→A → neither reaches zero)
+  
+  3. The Real Solution: Generational GC
+     - Analogy: Trash collection schedule. Kitchen trash (daily) vs garage (monthly).
+     - Generation 0: new objects, collected frequently (fast)
+     - Generation 1: survived one collection, collected less often
+     - Generation 2: long-lived objects, collected rarely (slow)
+  
+  4. How It Detects Cycles
+     - The gc module traverses object graph
+     - Finds unreachable cycles that refcounting missed
+  
+  5. Practical Implications
+     - `del x` doesn't immediately free memory
+     - Context managers (`with`) help
+     - `gc.collect()` forces collection
+     - Weak references prevent unwanted retention
+
+CONCEPTUAL CONTINUITY:
+  - Before explaining generational GC, student must understand reference counting.
+  - Before circular references, student must understand object references.
+  - Each concept builds on the previous. Never skip.
+```

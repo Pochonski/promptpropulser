@@ -1,0 +1,253 @@
+{
+  "version": "1.0",
+  "description": "PPC Benchmark Suite — 24 prompts (3 per mode) with evaluation criteria",
+  "prompts": [
+    {
+      "id": "basic_01",
+      "mode": "basic",
+      "prompt": "Cual es la capital de Japon?",
+      "expected_constraints": [],
+      "criteria": {
+        "must_be_concrete": true,
+        "max_tokens": 20,
+        "expected_answer": "Tokio"
+      }
+    },
+    {
+      "id": "basic_02",
+      "mode": "basic",
+      "prompt": "Cuantos planetas hay en el sistema solar?",
+      "expected_constraints": [],
+      "criteria": {
+        "must_be_concrete": true,
+        "max_tokens": 15,
+        "expected_answer": "8"
+      }
+    },
+    {
+      "id": "basic_03",
+      "mode": "basic",
+      "prompt": "Dime 3 colores primarios.",
+      "expected_constraints": ["3 items"],
+      "criteria": {
+        "must_list_three": true,
+        "expected_contains": ["rojo", "azul", "amarillo"]
+      }
+    },
+    {
+      "id": "reflection_01",
+      "mode": "reflection",
+      "prompt": "Analiza si este codigo tiene errores: def suma(a,b): return a+b print(suma(1,2,3))",
+      "expected_constraints": ["analyze", "find errors"],
+      "criteria": {
+        "must_identify_error": true,
+        "expected_error": "too many arguments"
+      }
+    },
+    {
+      "id": "reflection_02",
+      "mode": "reflection",
+      "prompt": "Evalua si esta arquitectura monolito vs microservicios es mejor para una startup de 3 developers.",
+      "expected_constraints": ["evaluate", "compare"],
+      "criteria": {
+        "must_compare": true,
+        "must_recommend": true
+      }
+    },
+    {
+      "id": "reflection_03",
+      "mode": "reflection",
+      "prompt": "Revisa esta decision: vamos a usar MongoDB para un sistema bancario de transacciones. Es correcto?",
+      "expected_constraints": ["review", "assess correctness"],
+      "criteria": {
+        "must_identify_problem": true,
+        "expected_concern": "ACID"
+      }
+    },
+    {
+      "id": "code_01",
+      "mode": "code",
+      "prompt": "Crea una funcion en Python que calcule el factorial de un numero sin usar math.factorial",
+      "expected_constraints": ["no math.factorial"],
+      "criteria": {
+        "must_be_function": true,
+        "must_not_use": ["math.factorial"],
+        "expected_handles": ["0", "1", "negative"]
+      }
+    },
+    {
+      "id": "code_02",
+      "mode": "code",
+      "prompt": "Haz una API en FastAPI con un endpoint GET /users que devuelva JSON. No uses base de datos.",
+      "expected_constraints": ["no database"],
+      "criteria": {
+        "must_have_endpoint": true,
+        "must_be_json": true,
+        "must_not_use": ["SQLAlchemy", "sqlite3", "PostgreSQL"]
+      }
+    },
+    {
+      "id": "code_03",
+      "mode": "code",
+      "prompt": "Escribe un script Python que lea un archivo CSV, filtre filas donde edad > 18, y guarde el resultado en JSON. Solo usa stdlib.",
+      "expected_constraints": ["only stdlib", "csv to json"],
+      "criteria": {
+        "must_use_stdlib_only": true,
+        "must_filter_age": true
+      }
+    },
+    {
+      "id": "architect_01",
+      "mode": "architect",
+      "prompt": "Disena la arquitectura de un sistema de e-commerce con microservicios. Debe ser escalable horizontalmente.",
+      "expected_constraints": ["microservices", "scalable"],
+      "criteria": {
+        "must_have_services": true,
+        "must_be_scalable": true
+      }
+    },
+    {
+      "id": "architect_02",
+      "mode": "architect",
+      "prompt": "Arquitectura de un pipeline CI/CD para 50 microservicios en Kubernetes. Usa GitHub Actions.",
+      "expected_constraints": ["GitHub Actions", "Kubernetes", "50 services"],
+      "criteria": {
+        "must_use_github_actions": true,
+        "must_reference_kubernetes": true
+      }
+    },
+    {
+      "id": "architect_03",
+      "mode": "architect",
+      "prompt": "Disena la arquitectura de datos para un sistema de recomendaciones en tiempo real. No uses Apache Spark.",
+      "expected_constraints": ["real-time", "no Spark"],
+      "criteria": {
+        "must_be_realtime": true,
+        "must_not_use": ["Spark"]
+      }
+    },
+    {
+      "id": "brutal_01",
+      "mode": "brutal",
+      "prompt": "Encuentra todas las vulnerabilidades en este endpoint JWT: el token se almacena en localStorage y se envia por header Authorization: Bearer <token>",
+      "expected_constraints": ["full security audit"],
+      "criteria": {
+        "must_find_vulnerabilities": true,
+        "min_issues": 2,
+        "expected_issues": ["XSS", "localStorage"]
+      }
+    },
+    {
+      "id": "brutal_02",
+      "mode": "brutal",
+      "prompt": "Audita la seguridad de este codigo de login SQL que concatena username y password directamente en la query sin parametrizar.",
+      "expected_constraints": ["security audit"],
+      "criteria": {
+        "must_find_sql_injection": true,
+        "must_suggest_fix": true
+      }
+    },
+    {
+      "id": "brutal_03",
+      "mode": "brutal",
+      "prompt": "Revisa este sistema de API keys: las keys se generan con Math.random() en frontend y se validan con un string.includes() en backend. Encuentra todos los fallos de seguridad.",
+      "expected_constraints": ["find all flaws"],
+      "criteria": {
+        "must_identify_random_issue": true,
+        "must_identify_timing_attack": true,
+        "min_issues": 2
+      }
+    },
+    {
+      "id": "focus_01",
+      "mode": "focus",
+      "prompt": "Refactoriza este codigo pero NO cambies la logica de negocio ni los nombres de las funciones publicas.",
+      "expected_constraints": ["no logic change", "no function rename"],
+      "criteria": {
+        "must_preserve_logic": true,
+        "must_preserve_names": true
+      }
+    },
+    {
+      "id": "focus_02",
+      "mode": "focus",
+      "prompt": "Migra este servicio a TypeScript. NO uses any, NO cambies las interfaces, y SOLO usa tipos explicitos.",
+      "expected_constraints": ["no any", "no interface changes", "explicit types"],
+      "criteria": {
+        "must_not_use_any": true,
+        "must_preserve_interfaces": true
+      }
+    },
+    {
+      "id": "focus_03",
+      "mode": "focus",
+      "prompt": "Optimiza este endpoint pero NO uses cache, NO agregues dependencias nuevas, y MANTEN el formato de respuesta actual.",
+      "expected_constraints": ["no cache", "no new deps", "same response format"],
+      "criteria": {
+        "must_not_use_cache": true,
+        "must_keep_format": true,
+        "must_not_add_deps": true
+      }
+    },
+    {
+      "id": "teacher_01",
+      "mode": "teacher",
+      "prompt": "Explicame como funciona el event loop de JavaScript como si tuviera 10 anios.",
+      "expected_constraints": ["ELI5 style", "JavaScript event loop"],
+      "criteria": {
+        "must_use_analogy": true,
+        "must_be_simple": true
+      }
+    },
+    {
+      "id": "teacher_02",
+      "mode": "teacher",
+      "prompt": "Enseniame progresivamente como funcionan las promesas en JavaScript, desde lo mas basico hasta async/await.",
+      "expected_constraints": ["progressive", "basic to advanced"],
+      "criteria": {
+        "must_be_progressive": true,
+        "must_include_async_await": true
+      }
+    },
+    {
+      "id": "teacher_03",
+      "mode": "teacher",
+      "prompt": "Explica que es una base de datos relacional con una analogia sencilla. Luego explica SQL basico.",
+      "expected_constraints": ["analogy first", "then SQL basics"],
+      "criteria": {
+        "must_have_analogy": true,
+        "must_include_sql": true
+      }
+    },
+    {
+      "id": "compress_01",
+      "mode": "compress",
+      "prompt": "Necesito que me ayudes a entender como funciona Kubernetes. Es que estoy empezando en el mundo de DevOps y me gustaria saber bien que es, para que sirve, como funciona, cuales son sus componentes principales, y como puedo empezar a usarlo. Te lo pido porque realmente quiero aprender y no se por donde comenzar. Muchas gracias de antemano.",
+      "expected_constraints": [],
+      "criteria": {
+        "must_shrink": true,
+        "min_reduction_pct": 10
+      }
+    },
+    {
+      "id": "compress_02",
+      "mode": "compress",
+      "prompt": "Basicamente lo que necesito es que me expliques de manera resumida y concisa los principios SOLID de programacion orientada a objetos. Me gustaria que fuera algo breve porque estoy en una entrevista maniana y necesito recordarlos rapidamente. En realidad solo necesito los 5 principios con una frase corta cada uno. Gracias.",
+      "expected_constraints": ["brief", "5 principles", "1 phrase each"],
+      "criteria": {
+        "must_list_five": true,
+        "must_be_concise": true
+      }
+    },
+    {
+      "id": "compress_03",
+      "mode": "compress",
+      "prompt": "Hola, mira, te escribo para preguntarte algo. Veras, tengo un proyecto y necesito saber cual es la diferencia entre REST y GraphQL. He escuchado mucho de ambos pero no tengo claro cuando usar cada uno. Te agradeceria mucho si me pudieras dar una comparacion breve pero concreta, sin tanto rodeo. Solo los puntos clave de cada uno y cuando conviene usar uno u otro.",
+      "expected_constraints": ["comparison", "brief"],
+      "criteria": {
+        "must_compare": true,
+        "must_be_brief": true
+      }
+    }
+  ]
+}

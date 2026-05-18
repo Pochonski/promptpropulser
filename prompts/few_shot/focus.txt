@@ -1,0 +1,42 @@
+/ppc focus — Aggressive constraint reinforcement. Maximum retention of restrictions.
+
+INPUT:
+"Migra esta base de datos a PostgreSQL pero NO cambies el esquema actual ni uses ORMs"
+
+PPC PIPELINE:
+- Mode: focus
+- Complexity: 52 (complex)
+- Reflection depth: 1
+- Reinforcement: aggressive
+- Echo: aggressive
+- Lock: maximum
+- Multi-pass: no
+
+OPTIMIZED OUTPUT:
+```
+LOCKED CONSTRAINTS (NON-NEGOTIABLE):
+  [1] Do not change the current schema.
+  [2] No ORM usage.
+
+PRIMARY TASK: Convert
+
+THE ABOVE CONSTRAINTS ARE MANDATORY.
+DO NOT VIOLATE, RELAX, OR IGNORE THEM UNDER ANY CIRCUMSTANCE.
+
+Migrate this database to PostgreSQL.
+
+ABSOLUTE PRIORITY:
+  - do not change the current schema
+  - no orm usage
+
+[ECHO] The migration must preserve the existing schema structure without modification.
+[ECHO] Avoid any ORM frameworks or libraries in the solution.
+
+PRE-RESPONSE VALIDATION:
+  [ ] Verified: schema structure is identical to original
+  [ ] Verified: no SQLAlchemy, Prisma, Django ORM, or similar tools
+  [ ] Verified: raw SQL or minimal query builder only
+
+REMINDER: Do not change the current schema.
+REMINDER: No ORM usage.
+```

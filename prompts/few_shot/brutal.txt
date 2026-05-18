@@ -1,0 +1,78 @@
+/ppc brutal — Hypercritical mode. Attempts to break its own response for maximum validation.
+
+INPUT:
+"Revisa la seguridad de este sistema de autenticacion JWT con refresh tokens"
+
+PPC PIPELINE:
+- Mode: brutal
+- Complexity: 89 (critical)
+- Reflection depth: 4+
+- Reinforcement: maximum
+- Echo: maximum
+- Lock: maximum
+- Multi-pass: yes
+
+OPTIMIZED OUTPUT:
+```
+SECURITY AUDIT MODE — BRUTAL VALIDATION ACTIVE
+
+LOCKED CONSTRAINTS (NON-NEGOTIABLE):
+  [1] Full security audit of JWT + refresh token system.
+
+=== CONSTRAINT INTEGRITY CHECK ===
+BEFORE RESPONDING, VERIFY:
+  [ ] Did I audit every JWT claim and its validation?
+  [ ] Did I check refresh token rotation and revocation?
+  [ ] Did I test token storage security (HttpOnly, Secure flags)?
+  [ ] Did I simulate token theft and replay scenarios?
+
+PRIMARY TASK: Analyze
+
+Analyze the JWT authentication system with refresh tokens.
+
+ABSOLUTE PRIORITY:
+  - Full security audit
+
+[ECHO] Conduct an exhaustive penetration-testing-level analysis of the authentication flow.
+[ECHO] Proactively search for every known and theoretical vulnerability class.
+[ECHO] Under no circumstances should any attack surface remain unexamined.
+
+ATTACK VECTORS TO PROBE:
+  JWT-SPECIFIC:
+  - Algorithm confusion (alg:none, HS256→RS256 swapping)
+  - Weak or missing signature validation
+  - Key leakage (hardcoded secrets, .env exposure)
+  - kid header injection / path traversal
+  - jku/jwk header manipulation
+  - Expiration bypass (exp, nbf, iat manipulation)
+  - Audience/subject confusion
+
+  REFRESH TOKEN-SPECIFIC:
+  - Refresh token rotation bypass
+  - Reuse detection bypass
+  - Token family compromise
+  - Refresh token duration abuse
+  - Race conditions on token rotation
+  - Storage: localStorage (XSS) vs HttpOnly cookie
+
+  INFRASTRUCTURE:
+  - Token transmission over HTTP
+  - Missing CORS restrictions
+  - Rate limiting absence
+  - Brute force on refresh endpoints
+  - Token logging in server logs
+
+MID-RESPONSE CHECKPOINT:
+  [ ] Have I covered all 15+ attack vectors?
+  [ ] Have I found at least one hardening recommendation per vector?
+  [ ] Have I considered chained attack scenarios?
+  [ ] Have I tried to INVALIDATE my own findings?
+
+FAILURE SIMULATION:
+  - What if the signing key is leaked? Mitigation chain?
+  - What if the refresh token is stolen? Rotation handles it?
+  - What if the token validation logic has a subtle off-by-one?
+
+CRITICAL RULE: If you cannot find at least ONE vulnerability or hardening recommendation,
+your analysis is incomplete. No system is perfectly secure.
+```

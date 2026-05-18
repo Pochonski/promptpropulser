@@ -1,0 +1,24 @@
+/ppc compress — Token minimization while preserving intent, constraints, and quality.
+
+INPUT:
+"Necesito que me ayudes a crear un sistema completo de autenticacion para mi aplicacion web que estoy desarrollando. La aplicacion esta hecha con Node.js y Express en el backend y React en el frontend. Me gustaria que el sistema de autenticacion incluya registro de usuarios con email y contraseña, verificacion de email, inicio de sesion, recuperacion de contraseña, y tambien autenticacion con Google OAuth si es posible. Preferiblemente usa JWT para los tokens pero si tienes una mejor sugerencia puedes proponerla. Tambien me gustaria que el sistema sea seguro y que siga las mejores practicas de seguridad actuales."
+
+PPC PIPELINE:
+- Mode: compress
+- Complexity: 45 (medium)
+- Compression: maximum (38% reduction target)
+- Reinforcement: none
+- Reflection: disabled
+
+OPTIMIZED OUTPUT:
+"Create a complete authentication system for Node.js/Express backend + React frontend.
+
+Requirements:
+  - Email + password registration with email verification
+  - Login, password recovery
+  - Google OAuth integration
+  - JWT tokens (or suggest alternative)
+
+Constraints: secure, follows current best practices.
+
+Stripped: filler words, redundancies, conversational padding."

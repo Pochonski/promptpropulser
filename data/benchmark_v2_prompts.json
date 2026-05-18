@@ -1,0 +1,309 @@
+{
+  "version": "2.0",
+  "description": "PPC Benchmark v2 — 24 hard prompts (3 per mode). Every prompt has 2-3 gotchas designed to stress-test constraint adherence, edge case detection, and reasoning depth.",
+  "prompts": [
+    {
+      "id": "basic_01",
+      "mode": "basic",
+      "prompt": "Lista 5 lenguajes de programacion compilados. NO incluyas Python, Java ni JavaScript. No expliques nada. Responde solo los nombres separados por comas.",
+      "expected_constraints": ["5 items", "no Python/Java/JavaScript", "compiled only", "comma-separated", "no explanation"],
+      "gotchas": ["Java es compilado pero prohibido", "JavaScript es interpretado pero lo prohíben por si acaso", "C y C++ cuentan como 2"],
+      "criteria": {
+        "must_have_five": true,
+        "must_not_contain": ["Python", "Java", "JavaScript"],
+        "must_be_compiled": true,
+        "format": "comma-separated"
+      }
+    },
+    {
+      "id": "basic_02",
+      "mode": "basic",
+      "prompt": "Dame 3 numeros primos entre 200 y 300. No expliques como los encontraste ni que es un numero primo. Solo los 3 numeros. Sin comas, uno por linea.",
+      "expected_constraints": ["3 primes", "200-300 range", "no explanation", "no commas", "one per line"],
+      "gotchas": ["201 parece primo pero es divisible por 3", "tiene que calcular, no es factual lookup"],
+      "criteria": {
+        "must_be_primes": true,
+        "must_be_in_range": true,
+        "count": 3,
+        "format": "one_per_line"
+      }
+    },
+    {
+      "id": "basic_03",
+      "mode": "basic",
+      "prompt": "Nombra paises de Europa que NO pertenezcan a la Union Europea. No uses listas numeradas ni bullets. Separa con punto y coma. Maximo 6 paises. No menciones Rusia ni Reino Unido.",
+      "expected_constraints": ["European non-EU", "max 6", "no Russia/UK", "semicolons", "no numbered lists"],
+      "gotchas": ["Reino Unido salio de la UE pero esta prohibido", "Suiza/Noruega son correctos", "Rusia es parcialmente europea pero prohibida"],
+      "criteria": {
+        "must_be_european": true,
+        "must_be_non_eu": true,
+        "max_items": 6,
+        "must_not_contain": ["Rusia", "Reino Unido"]
+      }
+    },
+    {
+      "id": "reflection_01",
+      "mode": "reflection",
+      "prompt": "Analiza este codigo: def binary_search(arr, target): left, right = 0, len(arr); while left <= right: mid = (left + right) // 2; if arr[mid] == target: return mid; elif arr[mid] < target: left = mid + 1; else: right = mid - 1; return -1. Hay al menos 2 bugs. Encuentralos TODOS y explica por que son bugs.",
+      "expected_constraints": ["find all bugs", "explain each bug"],
+      "gotchas": ["right = len(arr) deberia ser len(arr)-1", "mid = (left+right)//2 puede causar integer overflow en otros lenguajes pero el bug real es off-by-one", "La condicion del while con <= vs <"],
+      "criteria": {
+        "must_find_off_by_one": true,
+        "must_explain_each": true,
+        "min_bugs_found": 1
+      }
+    },
+    {
+      "id": "reflection_02",
+      "mode": "reflection",
+      "prompt": "Evalua esta decision tecnica: un equipo de 2 developers quiere usar microservicios con Kubernetes, Kafka, gRPC, y GraphQL para una app de gestion de tareas internas con 50 usuarios. Tienen 3 meses para lanzar. ¿Es la arquitectura correcta? Identifica TODOS los tradeoffs y problemas que no estan considerando.",
+      "expected_constraints": ["evaluate decision", "identify all tradeoffs", "identify unconsidered problems"],
+      "gotchas": ["Sobredimension masivo: K8s + Kafka para 50 usuarios", "2 devs no pueden mantener 5+ tecnologias complejas", "3 meses es imposible para ese stack", "La complejidad operativa mata startups"],
+      "criteria": {
+        "must_identify_overengineering": true,
+        "must_mention_team_capacity": true,
+        "must_mention_timeline_risk": true
+      }
+    },
+    {
+      "id": "reflection_03",
+      "mode": "reflection",
+      "prompt": "Revisa esta arquitectura de caching: usamos Redis como cache L1 en cada instancia de la app, y Memcached como L2 distribuido entre todas las instancias. Las invalidaciones se hacen manualmente desde cada endpoint que modifica datos. Los TTLs son fijos de 1 hora. No hay cache warming. Que puede fallar en produccion? Enumera TODOS los escenarios de fallo.",
+      "expected_constraints": ["review architecture", "enumerate all failure scenarios"],
+      "gotchas": ["Invalidacion manual = inconsistencia garantizada", "L1 y L2 pueden divergir", "TTLs fijos sin considerar patrones de acceso", "Sin cache warming = cold start masivo", "Race condition en invalidaciones concurrentes"],
+      "criteria": {
+        "must_identify_inconsistency": true,
+        "must_identify_cache_stampede": true,
+        "min_failure_scenarios": 2
+      }
+    },
+    {
+      "id": "code_01",
+      "mode": "code",
+      "prompt": "Implementa en Python 3.12 una funcion merge_sorted_arrays(arrays: list[list[int]]) -> list[int] que recibe N arrays ya ordenados ascendentemente y devuelve un solo array ordenado. NO uses heapq, NO uses sort(), y NO uses librerias externas. La complejidad debe ser O(K log N) donde K es el total de elementos. Incluye type hints completos. Maneja arrays vacios.",
+      "expected_constraints": ["no heapq", "no sort()", "no external libs", "O(K log N)", "type hints", "handle empty arrays"],
+      "gotchas": ["Sin heapq necesitas implementar min-heap manual o usar merge divide-and-conquer", "O(K log N) implica heap-based approach", "Edge case: arrays vacios en la lista de entrada", "Edge case: todos los arrays vacios"],
+      "criteria": {
+        "must_be_correct": true,
+        "must_not_use": ["heapq", ".sort(", "sorted("],
+        "must_have_type_hints": true
+      }
+    },
+    {
+      "id": "code_02",
+      "mode": "code",
+      "prompt": "Implementa un rate limiter sliding window en FastAPI como middleware. Sin Redis, sin base de datos externa. Debe soportar concurrencia real con asyncio (no threading). El limite es 100 requests por minuto por IP. Usa solo stdlib de Python 3.12. Incluye tests con pytest y asyncio. NO uses diccionarios globales sin lock.",
+      "expected_constraints": ["sliding window", "no Redis", "no external DB", "asyncio concurrency", "100 req/min/IP", "stdlib only", "tests included", "no global dicts without lock"],
+      "gotchas": ["Sliding window no es lo mismo que fixed window", "Asyncio lock es necesario para dict compartido", "Limpieza de ventanas viejas para no leak memory", "Tests asyncio requieren pytest-asyncio o AsyncMock"],
+      "criteria": {
+        "must_be_sliding_window": true,
+        "must_use_asyncio": true,
+        "must_have_tests": true,
+        "must_handle_concurrency": true
+      }
+    },
+    {
+      "id": "code_03",
+      "mode": "code",
+      "prompt": "Escribe un parser de JSON desde cero en Python. NO uses json.loads, json.load, eval, ast.literal_eval, ni ninguna libreria de parsing. Debe manejar: strings con escapes (\\n, \\t, \\\", \\\\), numeros negativos y decimales, booleanos (true/false en minuscula), null, arrays anidados, objetos anidados. Si el JSON es invalido, lanza una excepcion con el numero de linea y columna del error. Incluye 10 casos de prueba.",
+      "expected_constraints": ["from scratch", "no json/eval/ast", "handle all JSON types", "error with line+column", "10 test cases"],
+      "gotchas": ["Escapes dentro de strings son el caso mas dificil", "Numeros negativos: el - no es parte del numero en JSON", "Anidacion profunda rompe recursion sin tail-call", "Reportar linea y columna requiere tracking durante el parseo"],
+      "criteria": {
+        "must_parse_correctly": true,
+        "must_not_use": ["json.loads", "json.load", "eval(", "ast.literal_eval"],
+        "must_report_line_column": true,
+        "min_test_cases": 10
+      }
+    },
+    {
+      "id": "architect_01",
+      "mode": "architect",
+      "prompt": "Disena la arquitectura de un sistema de procesamiento de pagos que maneje 1000 transacciones por segundo con consistencia eventual entre servicios. NO uses two-phase commit (2PC). NO uses Kafka ni ningún message broker externo. La latencia maxima del endpoint de pago debe ser <200ms p99. La duplicidad de cobros es inaceptable. Incluye estrategia de idempotencia y manejo de fallos parciales.",
+      "expected_constraints": ["1000 tx/s", "no 2PC", "no Kafka/external broker", "<200ms p99", "idempotency", "no double charges"],
+      "gotchas": ["Sin message broker necesitas outbox pattern o event sourcing en la DB", "Idempotencia requiere idempotency keys y unique constraints", "200ms p99 es agresivo sin async messaging", "Consistencia eventual sin broker = CDC o polling"],
+      "criteria": {
+        "must_handle_throughput": true,
+        "must_propose_idempotency": true,
+        "must_not_use": ["Kafka", "RabbitMQ", "2PC", "two-phase"],
+        "must_meet_latency": true
+      }
+    },
+    {
+      "id": "architect_02",
+      "mode": "architect",
+      "prompt": "Arquitectura de una red social con 10 millones de usuarios activos. El feed principal debe actualizarse en tiempo real (<500ms desde que un amigo publica). Los usuarios pueden tener hasta 5000 amigos. NO uses polling del cliente. NO uses Firebase ni BaaS. El sistema debe funcionar on-premise sin cloud. Modela la estrategia de fan-out para el feed considerando la distribucion de grados (pocos usuarios con muchos amigos, muchos con pocos).",
+      "expected_constraints": ["10M users", "<500ms feed latency", "5000 friends max", "no polling", "no Firebase/BaaS", "on-premise", "fan-out strategy"],
+      "gotchas": ["Fan-out on write para usuarios con pocos seguidores, fan-out on read para celebridades", "5000 amigos max = distribucion power-law", "On-premise sin cloud = sin CDN, sin managed services", "WebSockets o SSE para push en tiempo real"],
+      "criteria": {
+        "must_address_fanout": true,
+        "must_be_realtime": true,
+        "must_not_use": ["Firebase", "polling"],
+        "must_consider_scale": true
+      }
+    },
+    {
+      "id": "architect_03",
+      "mode": "architect",
+      "prompt": "Migracion de un monolito bancario legacy a microservicios. El sistema actual tiene 20 anios, corre en Oracle con 400 stored procedures en PL/SQL, y procesa 2 millones de transacciones diarias. NO puede haber downtime ni perdida de transacciones durante la migracion. NO se pueden reescribir los stored procedures (hay que extraer la logica incrementalmente). El presupuesto de infraestructura no puede aumentar mas del 30% durante la migracion. Disena la estrategia de migracion paso a paso.",
+      "expected_constraints": ["no downtime", "no data loss", "2M tx/day", "400 PL/SQL SPs", "no SP rewrite upfront", "max 30% infra cost increase"],
+      "gotchas": ["Strangler Fig pattern para extraer endpoints incrementalmente", "Los SPs tienen logica de negocio enterrada que no esta documentada", "Oracle a PostgreSQL/post-microservicio requiere double-write o CDC", "30% mas infra durante migracion limita cuantos servicios nuevos podes correr"],
+      "criteria": {
+        "must_propose_incremental": true,
+        "must_handle_data_migration": true,
+        "must_not_propose_big_bang": true
+      }
+    },
+    {
+      "id": "brutal_01",
+      "mode": "brutal",
+      "prompt": "Audita este endpoint de reset de password: el usuario envia su email, el sistema genera un token de 6 digitos numericos usando random.randint(100000, 999999), lo envia por email en texto plano, y el usuario tiene 3 intentos para ingresarlo. El token expira en 1 hora. NO hay rate limiting en el endpoint de verificacion. Encuentra TODOS los vectores de ataque. Para cada uno, indica severidad (critica/alta/media/baja) y como mitigarlo.",
+      "expected_constraints": ["full security audit", "all attack vectors", "severity classification", "mitigation per vector"],
+      "gotchas": ["6 digitos = solo 1M combinaciones, brute-forceable sin rate limit", "3 intentos por token pero podes pedir infinitos tokens (nuevo token = nuevos 3 intentos)", "random.randint no es criptograficamente seguro", "Email en texto plano = sniffing MITM", "Token expira en 1h pero no hay invalidacion tras uso"],
+      "criteria": {
+        "must_identify_bruteforce": true,
+        "must_identify_insecure_random": true,
+        "must_classify_severity": true,
+        "min_attack_vectors": 3
+      }
+    },
+    {
+      "id": "brutal_02",
+      "mode": "brutal",
+      "prompt": "Revisa la seguridad de este sistema de file upload: el backend acepta cualquier extension de archivo, guarda el archivo en /uploads/{user_id}/{filename_original} (sin sanitizar), y sirve los archivos con Content-Type determinado por la extension. El frontend muestra una preview de imagenes con <img src='/uploads/{user_id}/{filename}' />. No hay autenticacion en el endpoint que sirve archivos. Encuentra TODAS las vulnerabilidades y para cada una propone la mitigacion concreta.",
+      "expected_constraints": ["full security review", "all vulnerabilities", "concrete mitigations"],
+      "gotchas": ["Path traversal con ../../../etc/passwd", "XSS via SVG o HTML con JS embebido", "RCE si el servidor ejecuta PHP/ASPX por extension", "Content-Type sniffing vs MIME type real", "Sin auth en serving = cualquiera accede a archivos de otros users", "Denial of Service subiendo archivos masivos"],
+      "criteria": {
+        "must_identify_path_traversal": true,
+        "must_identify_xss": true,
+        "min_vulnerabilities": 3
+      }
+    },
+    {
+      "id": "brutal_03",
+      "mode": "brutal",
+      "prompt": "Analiza la seguridad de este flujo OAuth2 implementado en un SPA (React). El authorization code se envia al callback por query param. El client_secret esta hardcodeado en el frontend (variables de entorno de Vite, visibles en el bundle). Los refresh tokens no tienen rotacion ni familia. Los scopes se validan solo al emitir el access token, no en cada request subsecuente. Los tokens se almacenan en localStorage. Audita el flujo completo: authorization request, token exchange, API calls con access token, y refresh. Encuentra TODOS los fallos.",
+      "expected_constraints": ["audit full OAuth2 flow", "all security flaws", "SPA-specific"],
+      "gotchas": ["client_secret en frontend = expuesto a cualquiera que vea el bundle", "Authorization code en query param = visible en logs del servidor y browser history", "Refresh token sin rotation = si se roba, acceso perpetuo", "Scopes no revalidados = privilege escalation si el token se usa en endpoints que requieren mas scopes", "localStorage = vulnerable a XSS", "SPA no puede usar client_secret seguro, debe usar PKCE"],
+      "criteria": {
+        "must_identify_secret_exposure": true,
+        "must_identify_token_storage_issue": true,
+        "min_flaws": 4,
+        "must_mention_pkce": true
+      }
+    },
+    {
+      "id": "focus_01",
+      "mode": "focus",
+      "prompt": "Refactoriza esta funcion manteniendo TODAS las restricciones: NO cambies la firma publica, NO uses recursividad, NO uses librerias externas, NO uses type: ignore ni # type: ignore, MANTEN exactamente el mismo comportamiento para TODOS los casos incluyendo arrays vacios y negativos, AGREGA type hints completos de Python 3.12. La funcion final no debe exceder 15 lineas.\n\ndef find_peak(arr):\n    n = len(arr)\n    if n == 0: return -1\n    if n == 1: return 0\n    if arr[0] >= arr[1]: return 0\n    if arr[n-1] >= arr[n-2]: return n-1\n    for i in range(1, n-1):\n        if arr[i] >= arr[i-1] and arr[i] >= arr[i+1]:\n            return i\n    return -1",
+      "expected_constraints": ["same signature", "no recursion", "no external libs", "no type: ignore", "same behavior all cases", "Python 3.12 type hints", "max 15 lines"],
+      "gotchas": ["La funcion actual es O(n), podria ser O(log n) con binary search pero el O(n) es correcto", "El comportamiento con arrays vacios/1elem/duplicados debe mantenerse identico", "Los type hints de Python 3.12 incluyen la nueva sintaxis (list[int] no List[int])"],
+      "criteria": {
+        "must_preserve_signature": true,
+        "must_preserve_behavior": true,
+        "must_have_type_hints": true,
+        "max_lines": 15
+      }
+    },
+    {
+      "id": "focus_02",
+      "mode": "focus",
+      "prompt": "Traduce esta funcion de Python a Rust. NO uses unsafe bajo ninguna circunstancia. NO uses .clone() en los hot paths. NO uses Rc ni RefCell. NO asignes mas heap del necesario. La funcion debe mantener EXACTAMENTE la misma logica incluyendo el manejo de errores (debe devolver Result, no panic). Usa el sistema de tipos de Rust para eliminar la necesidad de los asserts.\n\ndef process_batch(items: list[dict]) -> list[int]:\n    assert len(items) > 0, 'empty batch'\n    assert len(items) <= 1000, 'batch too large'\n    result = []\n    for item in items:\n        val = item.get('value')\n        assert val is not None, f'missing value in {item}'\n        assert isinstance(val, (int, float)), f'invalid type: {type(val)}'\n        assert val >= 0, f'negative value: {val}'\n        result.append(int(val * 100))\n    return result",
+      "expected_constraints": ["no unsafe", "no .clone() in hot paths", "no Rc/RefCell", "minimal heap", "same logic", "Result not panic", "type system for validation"],
+      "gotchas": ["Rust no tiene asserts en runtime, hay que usar el type system para validar en compile-time donde sea posible", "El assert de 'empty batch' puede ser un type-level guarantee con NonEmpty vec", "Los limites 0-1000 pueden ser tipos custom", "val * 100 puede overflow en Rust si val es grande"],
+      "criteria": {
+        "must_not_use_unsafe": true,
+        "must_return_result": true,
+        "must_use_type_system": true
+      }
+    },
+    {
+      "id": "focus_03",
+      "mode": "focus",
+      "prompt": "Optimiza esta query SQL para que corra en <100ms en una tabla con 50 millones de filas. NO agregues indices nuevos, NO cambies el esquema de la tabla, NO uses subconsultas en el SELECT, NO uses CTEs (WITH), NO uses window functions, NO cambies el orden de las filas en el resultado, y la query DEBE devolver exactamente las mismas filas y columnas.\n\nSELECT u.id, u.name, u.email, \n  (SELECT COUNT(*) FROM orders o WHERE o.user_id = u.id AND o.status = 'completed') as completed_orders,\n  (SELECT MAX(o2.created_at) FROM orders o2 WHERE o2.user_id = u.id) as last_order_date\nFROM users u\nWHERE u.status = 'active' AND u.created_at > '2020-01-01'\nORDER BY u.name ASC",
+      "expected_constraints": ["<100ms on 50M rows", "no new indexes", "no schema changes", "no subqueries in SELECT", "no CTEs", "no window functions", "same result order", "exact same rows and columns"],
+      "gotchas": ["Las subconsultas correlacionadas en SELECT son O(n*m) = muerte en 50M filas", "Necesitas LEFT JOIN con GROUP BY en vez de subconsultas", "COUNT con condicion requiere CASE o FILTER", "MAX con GROUP BY reemplaza la segunda subconsulta", "El ORDER BY u.name sin indice tambien es caro, pero NO se pueden agregar indices"],
+      "criteria": {
+        "must_remove_subqueries": true,
+        "must_use_joins": true,
+        "must_preserve_columns": true,
+        "must_preserve_order": true
+      }
+    },
+    {
+      "id": "teacher_01",
+      "mode": "teacher",
+      "prompt": "Explicame el algoritmo de consenso Raft como si estuvieras explicando las reglas de un juego de mesa. Debes cubrir estos 3 conceptos si o si: leader election, log replication, y safety (como se asegura que no haya inconsistencias). NO uses los terminos 'termino', 'quorum', 'commit index', 'follower', ni 'candidate' sin antes haberlos definido con la analogia del juego. Maximo 350 palabras. No uses markdown. Texto plano solamente.",
+      "expected_constraints": ["Raft consensus", "board game analogy", "cover 3 concepts", "no undefined jargon", "max 350 words", "no markdown", "plain text"],
+      "gotchas": ["Leader election tiene que explicarse sin decir 'leader election'", "Log replication sin 'log' ni 'replication' hasta definirlos", "El safety guarantee de Raft es sutil (solo un leader por term, entries committed si estan en mayoria)", "350 palabras es MUY poco para cubrir 3 conceptos con analogia"],
+      "criteria": {
+        "must_use_analogy": true,
+        "must_cover_all_three": true,
+        "max_words": 350,
+        "must_define_jargon": true
+      }
+    },
+    {
+      "id": "teacher_02",
+      "mode": "teacher",
+      "prompt": "Ensenia closures en JavaScript a un developer que solo sabe Python. Debes incluir minimo 3 ejemplos de codigo donde CADA ejemplo este escrito en Python primero y luego su equivalente en JavaScript. Explica exactamente en que se diferencia el scoping (LEGB vs scope chain). No des nada por sentado sobre conocimiento previo de JS. No uses los terminos 'lexical environment', 'execution context', ni '[[scope]]' sin definirlos primero en lenguaje simple.",
+      "expected_constraints": ["3 Python+JS code examples", "scoping comparison", "no undefined JS jargon", "no assumed JS knowledge"],
+      "gotchas": ["Python tiene LEGB, JS tiene scope chain con function scope (var) y block scope (let/const)", "El ejemplo clasico del loop con var vs let es obligatorio", "Python nonlocal no tiene equivalente directo en JS", "Los closures en Python capturan por referencia igual que JS pero el comportamiento con loops es diferente"],
+      "criteria": {
+        "must_have_3_examples": true,
+        "must_compare_scoping": true,
+        "must_define_js_terms": true
+      }
+    },
+    {
+      "id": "teacher_03",
+      "mode": "teacher",
+      "prompt": "Explica los consistency models en bases de datos distribuidas: strict serializability, serializability, snapshot isolation, read committed, read uncommitted, y eventual consistency. Para cada nivel: (1) definicion en una frase, (2) que anomalia permite que el nivel anterior no permite, (3) cuando usarlo en la practica. Estructura la respuesta como una tabla. No uses wall-of-text. Se conciso pero preciso. Maximo 400 palabras en total.",
+      "expected_constraints": ["6 consistency levels", "definition+anomaly+use per level", "table format", "max 400 words", "concise but precise"],
+      "gotchas": ["Strict serializability no es lo mismo que serializability (agrega linearizability)", "Read uncommitted es el default en muchos RDBMS pero casi nunca es correcto usarlo", "Snapshot isolation permite write skew que serializability no permite", "400 palabras para 6 niveles + 3 columnas = ~22 palabras por celda"],
+      "criteria": {
+        "must_have_all_six": true,
+        "must_be_table": true,
+        "max_words": 400,
+        "must_include_anomalies": true
+      }
+    },
+    {
+      "id": "compress_01",
+      "mode": "compress",
+      "prompt": "Hola! Espero que estes bien. Mira, te escribo porque estoy armando un proyecto nuevo en el trabajo y necesito orientacion. Estuvimos discutiendo con el equipo y decidimos que necesitamos un sistema de recomendaciones para nuestra plataforma de e-learning que tiene como 100 mil usuarios. La idea es recomendar cursos basados en lo que el usuario ya completo. Estuvimos viendo varias opciones como collaborative filtering, content-based, y modelos hibridos. Pero tenemos algunas restricciones importantes que tenemos que respetar si o si. Mira, NO podemos usar collaborative filtering porque no tenemos suficientes datos de interaccion entre usuarios (solo un 15% de los usuarios califica los cursos). TAMPOCO podemos usar servicios cloud pagos porque el presupuesto ya esta asignado a otras cosas. La latencia del endpoint de recomendaciones no puede superar los 100ms porque va en la homepage y afecta la metrica de LCP en Core Web Vitals. Ah, y otra cosa importante: el CTO nos pidio especificamente que el sistema sea explicable, o sea que podamos mostrarle al usuario POR QUE le recomendamos cada curso (nada de caja negra). Bueno, basicamente eso. Cualquier sugerencia que tengas me vendria genial. Gracias!",
+      "expected_constraints": ["no collaborative filtering", "no cloud services", "<100ms latency", "explainable recommendations", "content-based or hybrid"],
+      "gotchas": ["La constraint 'no collaborative filtering' esta enterrada en el medio de un parrafo largo", "100ms es agresivo para recomendaciones sin cloud", "Explicabilidad + sin cloud + <100ms restringe mucho las opciones (basicamente TF-IDF + cosine similarity)", "Hay 3 constraints negativas y 1 positiva enterradas en 350+ palabras de relleno"],
+      "criteria": {
+        "must_not_use_collaborative": true,
+        "must_be_explainable": true,
+        "must_meet_latency": true,
+        "must_not_use_cloud": true
+      }
+    },
+    {
+      "id": "compress_02",
+      "mode": "compress",
+      "prompt": "Que tal? Como va todo? Te cuento, estamos con un quilombo barbaro en la empresa. Tenemos un sistema legacy que hay que migrar si o si porque el proveedor nos corta el soporte en 3 meses y no podemos quedarnos sin sistema porque procesa todas las transacciones financieras de la empresa (hablamos de como 50 mil por dia). El sistema actual esta en Visual Basic 6 corriendo en un Windows Server 2003 que ya ni recibe parches de seguridad. Si, ya se, es un desastre. La base de datos es SQL Server 2000 y tiene como 200 tablas. Ah, y lo peor: los que desarrollaron esto se fueron de la empresa en 2018 y no hay documentacion. Cero. Nada. Ni un diagrama. Lo unico que tenemos es el codigo fuente y la base de datos. La migracion tiene que ser SI o SI sin downtime porque el sistema se usa 24/7 en 3 paises con diferentes zonas horarias. No podemos perder NI UNA transaccion durante la migracion porque son datos financieros y eso implica auditoria, multas, etc. La API vieja tiene que seguir funcionando durante la migracion porque hay 15 sistemas externos que la consumen y no podemos actualizarlos todos al mismo tiempo. El equipo es de 4 developers y yo. Y tenemos 3 meses. Ayuda!",
+      "expected_constraints": ["no downtime", "zero data loss", "old API must work during migration", "4 devs + 3 months", "VB6 + SQL Server 2000", "200 tables", "no documentation", "24/7 operation in 3 timezones"],
+      "gotchas": ["3 meses para migrar VB6 sin documentacion con 4 devs es casi imposible sin una estrategia muy inteligente", "La constraint de 'old API must work' = strangler fig pattern", "Cero downtime + cero data loss = CDC o doble escritura", "Las constraints estan dispersas en 300+ palabras de contexto emocional"],
+      "criteria": {
+        "must_not_downtime": true,
+        "must_not_dataloss": true,
+        "must_keep_old_api": true
+      }
+    },
+    {
+      "id": "compress_03",
+      "mode": "compress",
+      "prompt": "Buenas! Te pido una mano para decidir el stack tecnologico de un proyecto nuevo. Es una aplicacion mobile que tiene que funcionar offline (los usuarios estan en zonas rurales sin internet la mayor parte del tiempo), pero cuando vuelven a tener conexion tiene que sincronizar todos los datos automaticamente sin que el usuario haga nada. El presupuesto es practicamente cero: no podemos pagar servicios cloud, ni bases de datos managed, ni nada que tenga costo mensual. Todo tiene que correr en el server on-premise que ya tenemos (un Linux viejo con 8GB de RAM). Somos 2 developers y yo se React Native y Node.js, el otro sabe Python. La app va a tener formularios, fotos, y GPS tracking. Necesito que me digas que stack usarias en el frontend mobile, backend, base de datos, y estrategia de sincronizacion. Pero considera que NO podemos usar Firebase, NO podemos usar AWS/Firestore, NO podemos usar MongoDB Atlas, y TIENE que ser open source todo. Ah, y la sincronizacion tiene que manejar conflictos (si dos usuarios editan el mismo formulario offline).",
+      "expected_constraints": ["offline-first", "auto sync", "zero budget", "on-premise 8GB Linux", "2 devs (React Native+Node.js, Python)", "no Firebase", "no AWS/cloud", "no MongoDB Atlas", "all open source", "conflict resolution"],
+      "gotchas": ["Offline-first + auto sync + conflict resolution es el problema mas dificil en mobile dev", "CRDTs vs Operational Transform vs last-write-wins", "8GB RAM limita mucho: PostgreSQL o SQLite, no Cassandra", "Las constraints estan al final del prompt, enterradas en una oracion larga", "2 devs mobile + backend + sync engine es mucho scope"],
+      "criteria": {
+        "must_be_offline_first": true,
+        "must_not_use_cloud": true,
+        "must_propose_sync_strategy": true,
+        "must_be_open_source": true
+      }
+    }
+  ]
+}

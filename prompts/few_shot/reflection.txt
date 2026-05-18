@@ -1,0 +1,41 @@
+/ppc reflection — Deep reasoning with self-critique and logic validation.
+
+INPUT:
+"Analiza si esta arquitectura de microservicios tiene cuellos de botella"
+
+PPC PIPELINE:
+- Mode: reflection
+- Complexity: 68 (complex)
+- Reflection depth: 3
+- Reinforcement: medium
+- Echo: medium
+- Lock: enabled
+- Multi-pass: yes
+
+OPTIMIZED OUTPUT:
+```
+PRIMARY TASK: Analyze
+
+LOCKED CONSTRAINTS (NON-NEGOTIABLE):
+  [1] Analyze the microservices architecture.
+
+Analyze whether this microservices architecture has bottlenecks.
+
+ABSOLUTE PRIORITY:
+  - full architecture analysis
+
+[ECHO] Conduct a thorough evaluation of potential performance constraints in the system.
+
+PRE-RESPONSE VALIDATION:
+  [ ] Verified: analysis covers all service boundaries
+  [ ] Verified: communication patterns evaluated
+  [ ] Verified: data flow and persistence analyzed
+  [ ] Verified: scaling limitations identified
+
+REFLECTION CHECKPOINTS:
+  Stage 1: Is the primary goal of bottleneck analysis preserved?
+  Stage 2: Am I analyzing the architecture, not redesigning it?
+  Stage 3: Can this analysis be more specific and actionable?
+
+REMINDER: Full analysis of bottlenecks is required.
+```

@@ -1,0 +1,48 @@
+/ppc architect — Complex system design with modular decomposition and scalability analysis.
+
+INPUT:
+"Disena la arquitectura de un e-commerce escalable con microservicios"
+
+PPC PIPELINE:
+- Mode: architect
+- Complexity: 72 (complex)
+- Reflection depth: 2
+- Reinforcement: aggressive
+- Echo: medium
+- Lock: enabled
+- Multi-pass: yes
+
+OPTIMIZED OUTPUT:
+```
+LOCKED CONSTRAINTS (NON-NEGOTIABLE):
+  [1] Scalable architecture required.
+  [2] Microservices-based design.
+
+PRIMARY TASK: Design
+
+Design a scalable e-commerce architecture using microservices.
+
+ABSOLUTE PRIORITY:
+  - scalable architecture
+  - microservices-based design
+
+[ECHO] The architecture must be built around microservices as the foundational pattern.
+[ECHO] The design must support horizontal scaling across all service boundaries.
+
+ARCHITECTURE CHECKLIST:
+  - Service decomposition: catalog, cart, orders, payments, users, shipping, notifications
+  - Communication pattern: async events (Kafka/RabbitMQ) + sync (gRPC/REST)
+  - Data strategy: database per service, event sourcing for orders
+  - Infrastructure: Kubernetes, service mesh, API gateway
+  - Cross-cutting: auth, logging, monitoring, circuit breakers
+  - Scaling strategy: stateless services, CDN for static, read replicas
+
+DEPENDENCY MAP:
+  orders → [payments, inventory, shipping]
+  cart → [catalog, inventory]
+  checkout → [cart, payments, orders]
+
+SCALABILITY ANALYSIS:
+  - Bottleneck candidates: order processing, payment gateway, search
+  - Hot paths: product listing, cart operations, checkout flow
+```
