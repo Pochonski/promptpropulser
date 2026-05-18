@@ -2,361 +2,274 @@
 
 **Contextual cognition orchestration layer for LLMs**
 
-[![Python](https://img.shields.io/badge/python-3.10+-blue)](https://python.org)
 [![Tests](https://img.shields.io/badge/tests-134%20passed-green)]()
 [![License](https://img.shields.io/badge/license-MIT-orange)]()
 
-PPC optimizes how LLMs receive, interpret, and prioritize context without modifying the base model. It acts as cognitive middleware — analyzing prompts, detecting constraints, reinforcing attention, and evaluating output quality via LLM-as-Judge.
-
----
-
-## What is PromptPropulserClaude?
-
-LLMs don't "think" like humans. They operate on probabilistic attention, semantic patterns, and token prediction. This causes common failures: forgetting constraints mid-generation, ignoring critical details, drifting from the task, producing generic answers, and losing context in long prompts.
-
-PPC solves this through an **Attention Reinforcement Engine (ARE)** that redistributes critical information in the prompt to increase attentional weight, plus a **Constraint Lock System** that makes restrictions non-negotiable, **Semantic Echo** for context reformulation, a **Reflection Pipeline** for self-evaluation, and an **LLM-as-Judge** that uses Claude itself to score output quality.
-
-PPC is not a chatbot, a prompt wrapper, or a model fine-tuner. It is a **contextual cognition orchestration layer** — middleware between user intent and model execution.
-
-### Pipeline
-
-```
-User Input
-  ↓
-Intent Analyzer → Constraint Classifier → Complexity Scorer
-  ↓
-Constraint Lock → Semantic Echo → Attention Reinforcement → Compression
-  ↓
-Optimized Prompt → Claude
-  ↓
-LLM-as-Judge (Claude Haiku) → Quality Score → Validated Response
-```
+PPC is a **skill for coding agents** that makes LLMs obey constraints, detect intent, and self-critique their responses. Drop it into Claude Code, Cursor, or OpenCode — no API keys, no install, no Python. Just chat and PPC activates automatically.
 
 ---
 
 ## Quick Start
 
-### Install as Skill (One Command)
+### One command
 
 ```bash
 # Linux / macOS
 curl -sSL https://raw.githubusercontent.com/Pochonski/promptpropulser/master/install.sh | bash
 
-# Windows (PowerShell)
-iwr -Uri https://raw.githubusercontent.com/Pochonski/promptpropulser/master/install.ps1 -OutFile install.ps1; ./install.ps1
+# Windows
+iwr https://raw.githubusercontent.com/Pochonski/promptpropulser/master/install.ps1 -OutFile install.ps1; ./install.ps1
 ```
 
-Or manually:
+Or clone manually:
 
 ```bash
 git clone https://github.com/Pochonski/promptpropulser ~/.claude/skills/promptpropulser
 ```
 
-### Supported Agents
+### Supported agents
 
-| Agent | Skill Path |
-|-------|-----------|
+| Agent | Path |
+|-------|------|
 | **Claude Code** | `~/.claude/skills/promptpropulser/` |
 | **Cursor** | `~/.cursor/skills/promptpropulser/` |
 | **OpenCode** | `~/.config/opencode/skills/promptpropulser/` |
 | **OpenAI Codex** | `~/.codex/skills/promptpropulser/` |
 | **Google Antigravity** | `~/.gemini/antigravity/skills/promptpropulser/` |
 
-The install script copies `SKILL.md` to all detected agent directories.
+The skill file is `SKILL.md` — a single markdown file with YAML frontmatter that the agent reads on startup.
 
-### Usage
+---
 
-Just chat normally. PPC auto-detects the mode from your prompt:
+## What It Does
 
-```text
-You: "Haz una API FastAPI sin base de datos en Python 3.12"
-PPC:  [auto-detects code mode → locks constraints → reinforces → responds]
+LLMs fail in predictable ways: they forget restrictions, drift from the task, lose context in long prompts. PPC fixes this by rewriting how the model **receives and prioritizes** instructions — without touching model weights.
 
-You: "Audita la seguridad de este endpoint JWT"
-PPC:  [auto-detects brutal mode → maximum reinforcement → contradiction attack]
-
-You: "Explicame Docker como si tuviera 10 anos"
-PPC:  [auto-detects teacher mode → progressive explanation → analogies]
+```
+You:  "Haz una API sin base de datos, compatible con Python 3.12"
+                                                                    
+PPC:  [detects constraints: NO database, Python 3.12]               
+      [locks them as non-negotiable]                                 
+      [echoes them semantically]                                     
+      [builds pre-response validation checklist]                     
+      [sends optimized prompt to Claude]                             
+                                                                    
+Claude:  def app():                                                  
+             # Python 3.12 type hints
+             # In-memory storage — no database
+             return FastAPI()
 ```
 
-No commands needed. The skill activates when keywords match.
+**PPC doesn't generate better answers. PPC gives Claude a better question.**
+
+---
+
+## How the Skill Works
+
+There are no commands. You chat normally and PPC auto-detects which mode to activate from your prompt:
+
+### Auto-Detection Triggers
+
+| You say... | PPC activates |
+|------------|---------------|
+| `codigo`, `API`, `funcion`, `bug`, `implementa`, `FastAPI`, `endpoint` | **code** — validates syntax, imports, edge cases |
+| `seguridad`, `vulnerabilidad`, `audita`, `exploit`, `hack`, `JWT` | **brutal** — contradiction attack, tries to break own response |
+| `arquitectura`, `disena`, `sistema`, `microservicios`, `escalable` | **architect** — modular decomposition, dependency mapping |
+| `analiza`, `profundo`, `investiga`, `evalua`, `debug` | **reflection** — multi-pass reasoning, self-critique |
+| `explicame`, `paso a paso`, `tutorial`, `ELI5`, `ensenia` | **teacher** — progressive explanation, analogies |
+| `rapido`, `breve`, `resumen`, `corto`, `TLDR`, `conciso` | **compress** — token reduction, deduplication |
+| `NO uses`, `SIN`, `obligatorio`, `manten`, `no cambies` | **focus** — aggressive constraint retention |
+| *(none of the above)* | **basic** — minimal overhead |
+
+The agent loads `SKILL.md` → reads the YAML triggers → applies the matching pipeline. Everything happens in the model's reasoning — no external code runs.
 
 ### Force a specific mode
 
 ```text
-/ppc brutal — Analiza este sistema OAuth2
-/ppc focus — Migra esto sin cambiar el esquema ni usar ORM
-/ppc code — Implementa un rate limiter sin Redis
+/ppc brutal — Audita este flujo OAuth2
+/ppc focus — Migra esto sin cambiar el esquema ni usar Docker
+/ppc code — Implementa un rate limiter con sliding window
 ```
 
 ---
 
-### Advanced: Python CLI + API
+## What the Skill Does Internally
 
-For programmatic use with benchmarks, FastAPI server, and LangChain integration:
+When a mode activates, PPC rewrites your prompt before the model processes it:
 
-```bash
-pip install promptpropulser
-
-export ANTHROPIC_API_KEY="sk-ant-..."
-
-ppc --run code "Crea una API FastAPI sin base de datos"
-ppc --ab brutal "Audita la seguridad de este JWT"
-ppc --retry focus "Migra sin cambiar el esquema"
-
-# Self-improvement loop (auto-retry on low scores)
-ppc --retry focus "Migra este servicio a AWS sin usar Docker ni cambiar el esquema de DB"
 ```
+Your prompt:
+    "Haz una API en FastAPI sin base de datos"
+
+PPC transforms it into:
+    LOCKED CONSTRAINTS (NON-NEGOTIABLE):
+      [1] No database usage.
+    
+    PRIMARY TASK: Create
+    
+    Create a FastAPI API.
+    
+    [ECHO] The solution must avoid any database dependency entirely.
+    
+    PRE-RESPONSE VALIDATION:
+      [ ] Verified: no database imports or ORM
+      [ ] Verified: no SQLAlchemy, SQLite references
+    
+    REMINDER: No database usage.
+```
+
+Then after generating, PPC runs a **critic self-check**: constraint adherence, accuracy, clarity, efficiency. If any score ≤ 3, it regenerates.
 
 ---
 
 ## Modes
 
-| Mode | Use Case | Reflection | Reinforcement |
-|------|----------|-----------|---------------|
-| `basic` | Simple queries, minimal overhead | 0 | low |
-| `reflection` | Deep reasoning, logic validation | 3 | medium |
-| `code` | Programming: bugs, imports, edge cases, compatibility | 2 | aggressive |
-| `architect` | System design, dependency mapping, scalability | 2 | aggressive |
-| `brutal` | Hypercritical security/architecture audit | 4+ | maximum |
-| `focus` | Aggressive constraint retention, reduced creativity | 1 | aggressive |
-| `teacher` | Progressive explanations with analogies | 1 | low |
-| `compress` | Token reduction, deduplication | 0 | none |
+| Mode | What it does | When to use |
+|------|-------------|-------------|
+| **code** | Validates syntax, edge cases, imports, compatibility | Programming tasks |
+| **brutal** | Contradiction attack, failure simulation, exploit reasoning | Security audits |
+| **architect** | Modular decomposition, dependency mapping, scalability analysis | System design |
+| **reflection** | Multi-pass reasoning, logic validation, self-critique | Analysis & debugging |
+| **teacher** | Progressive explanation, analogies, adaptive complexity | Explanations |
+| **focus** | Triple constraint lock, aggressive reinforcement | Constraint-heavy tasks |
+| **compress** | Deduplication, filler removal, semantic compression | Long prompts |
+| **basic** | Minimal overhead, no reflection | Simple questions |
 
 ---
 
-## CLI Reference
+## Why Only a Markdown File?
 
-```
-ppc <mode> "<prompt>" [flags]
+Because the entire system is **rules** — not code. The Attention Reinforcement Engine (ARE), Semantic Echo, Constraint Lock, Reflection Pipeline, and Critic Engine are all **behaviors** the model executes by following instructions in `SKILL.md`.
 
-Modes: basic | reflection | code | architect | brutal | focus | teacher | compress
+The file is structured so the model can execute the pipeline in its own reasoning:
+1. Detect intent → 2. Classify constraints → 3. Lock critical rules → 4. Echo semantically → 5. Reinforce attention → 6. Reflect → 7. Deliver
 
-Core Flags:
-  --run              Optimize + send to Claude + LLM Judge evaluation
-  --ab               A/B test: raw prompt vs PPC-optimized
-  --retry            Self-improvement loop (auto-retry up to 3x on low scores)
-  --verbose          Full analysis output with metadata
-  --hybrid           Optimized prompt + short summary
-  --json             JSON output
-
-LLM Control:
-  --api-key KEY      Anthropic API key
-  --model MODEL      Claude model (default: claude-sonnet-4-6)
-  --base-url URL     Custom API base URL for proxies
-  --system-prompt P  Path to .md system prompt file
-  --no-judge         Use keyword critic instead of LLM Judge (faster, less accurate)
-
-Pipeline Control:
-  --reinforcement    none | low | medium | aggressive | maximum
-  --reflection-depth 0-5
-  --compress         Force compression on
-  --token-budget N   Token budget (default: 4000)
-  --save-session     Save SessionLog to sessions/
-  --judge-model M    Judge model (default: claude-haiku-4-5-20251001)
-
-Pipe input:
-  echo "Explicame Docker" | ppc teacher --run
-```
+No external runtime needed. The skill works in any agent that reads `SKILL.md`.
 
 ---
 
-## FastAPI Server
+## Benchmark Results
+
+24 prompts across 8 modes, scored by **LLM-as-Judge** (Claude Haiku evaluates response quality on constraint adherence, accuracy, clarity, efficiency):
+
+| Metric | Value |
+|--------|-------|
+| PPC Win Rate (vs raw prompt) | **41.7%** |
+| Accuracy Delta | **+0.12** |
+| Clarity Delta | **+0.21** |
+| Efficiency Delta | **+0.17** |
+
+| Mode | RAW Avg | PPC Avg | Delta | Wins |
+|------|:---:|:---:|:---:|:---:|
+| focus | 9.3 | 9.8 | **+0.42** | 3/3 |
+| compress | 9.6 | 9.9 | **+0.33** | 2/3 |
+| code | 9.5 | 9.8 | +0.25 | 1/3 |
+| teacher | 9.2 | 9.3 | +0.17 | 1/3 |
+| architect | 8.9 | 9.0 | +0.08 | 1/3 |
+| reflection | 9.2 | 9.3 | +0.08 | 1/3 |
+| basic | 9.8 | 9.8 | 0.00 | 1/3 |
+
+Full benchmark history: [`data/BENCHMARK_HISTORY.md`](data/BENCHMARK_HISTORY.md)
+
+---
+
+## Advanced: Python for Production
+
+The Python package (`ppc/`) is the **deterministic implementation** of the same pipeline — useful when you need measurement, APIs, or infrastructure integration.
+
+### CLI
+
+```bash
+pip install promptpropulser
+export ANTHROPIC_API_KEY="sk-ant-..."
+
+# Optimize + send to Claude + LLM judge
+ppc --run code "Crea una API FastAPI sin base de datos"
+
+# A/B test raw vs PPC
+ppc --ab brutal "Audita este JWT"
+
+# Self-improvement loop with auto-retry
+ppc --retry focus "Migra sin cambiar el esquema"
+
+# Disable LLM judge for zero-cost evaluation
+ppc --run --no-judge code "Haz una funcion Python"
+```
+
+### FastAPI Server
 
 ```bash
 pip install promptpropulser[server]
 uvicorn server:app --host 0.0.0.0 --port 8000
 ```
 
-### Endpoints
-
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/optimize` | Optimize a prompt, return optimized version |
-| `POST` | `/generate` | Optimize + send to Claude + judge + return response |
-| `POST` | `/ab` | A/B test: raw vs PPC with judge scores |
+| `POST` | `/optimize` | Optimize a prompt |
+| `POST` | `/generate` | Optimize + Claude + Judge |
+| `POST` | `/ab` | A/B test raw vs PPC |
 | `GET` | `/health` | Health check |
-| `GET` | `/modes` | List available modes with config |
-| `GET` | `/sessions` | List saved session logs |
+| `GET` | `/modes` | List modes |
+| `GET` | `/sessions` | Session history |
 
-### Example
-
-```bash
-curl -X POST http://localhost:8000/optimize \
-  -H "Content-Type: application/json" \
-  -d '{"mode":"code","prompt":"Crea una API FastAPI sin base de datos"}'
-```
-
----
-
-## Docker
+### Docker
 
 ```bash
 docker build -t promptpropulser .
 docker run -p 8000:8000 -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY promptpropulser
 ```
 
-Or with compose:
-
-```yaml
-services:
-  ppc:
-    build: .
-    ports:
-      - "8000:8000"
-    environment:
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-```
-
----
-
-## LangChain Integration
+### LangChain
 
 ```python
-from ppc.integration.langchain import PPCPromptTemplate, PPCOptimizer
+from ppc.integration.langchain import PPCOptimizer
 
-# Standalone: optimize any prompt
-template = PPCPromptTemplate(mode="code")
-optimized = template.format(input="Haz una API en FastAPI sin base de datos")
-
-# As a chain step
 optimizer = PPCOptimizer(mode="brutal")
-prompt = optimizer("Audita la seguridad de este JWT")
+prompt = optimizer("Audita este endpoint JWT")
+# → send prompt to your existing LangChain LLM
 ```
 
 ---
 
-## LLM-as-Judge
-
-PPC uses Claude Haiku as an impartial evaluator that scores responses on four dimensions:
-
-| Dimension | What it measures |
-|-----------|-----------------|
-| **constraint_adherence** | All locked constraints respected? Understands negation context ("SIN Docker" = compliant) |
-| **clarity** | Well-structured, easy to follow, properly formatted |
-| **accuracy** | Factually correct, technically sound, no hallucinations |
-| **efficiency** | Concise without losing quality, proportional to task |
-
-Unlike keyword-based critics, the LLM Judge understands:
-- Negation context ("without X" vs "using X")
-- Code quality beyond surface patterns
-- Proportional response length (complex tasks merit thorough answers)
-- Real factual accuracy, not just keyword presence
-
-Disable with `--no-judge` for zero-cost evaluation using fast keyword heuristics.
-
----
-
-## Benchmark Results
-
-24 prompts across 8 modes, each tested RAW (direct to Claude) vs PPC (optimized pipeline), scored by LLM-as-Judge (Claude Haiku, temperature=0).
-
-| Metric | Value |
-|--------|-------|
-| PPC Win Rate | **41.7%** |
-| Accuracy Delta | **+0.12** |
-| Clarity Delta | **+0.21** |
-| Efficiency Delta | **+0.17** |
-
-### Per-Mode Performance
-
-| Mode | RAW Avg | PPC Avg | Delta | Wins |
-|------|---------|---------|-------|------|
-| focus | 9.3 | 9.8 | **+0.42** | 3/3 |
-| compress | 9.6 | 9.9 | **+0.33** | 2/3 |
-| code | 9.5 | 9.8 | **+0.25** | 1/3 |
-| teacher | 9.2 | 9.3 | +0.17 | 1/3 |
-| architect | 8.9 | 9.0 | +0.08 | 1/3 |
-| reflection | 9.2 | 9.3 | +0.08 | 1/3 |
-| basic | 9.8 | 9.8 | 0.00 | 1/3 |
-
-- **Focus mode** shows strongest improvement: aggressive constraint retention + LLM Judge correctly identifies compliance (keyword critics historically misread repeated constraints as violations).
-- **Compress mode**: Token reduction improves clarity and efficiency without losing quality.
-- **Simple prompts** (basic): PPC matches raw — zero degradation.
-
-Full benchmark data in `data/benchmark_llm_judge_results.json`.
-
----
-
-## Architecture
+## Repository Structure
 
 ```
-ppc/
-├── engine/           # Orchestrator + Pipeline executor
-├── analyzers/        # Intent, Constraint, Complexity (0-100 score)
-├── transformers/     # Lock, Echo, Reinforcement, Compression
-├── reflection/       # 4-stage self-evaluation
-├── critic_llm.py     # LLM-as-Judge (Claude Haiku)
-├── delivery/         # Output formatter (transparent/hybrid/verbose)
-├── config/           # Modes, thresholds, heuristics, rules, guardrails
-├── schemas/          # Input/Output/SessionLog dataclasses
-├── integration/      # Anthropic client, LangChain adapter
-├── loop.py           # Self-improvement loop (run_once / run_until_pass)
-├── session_store.py  # JSON/CSV persistence
-├── benchmark.py      # 24-prompt benchmark runner
+promptpropulser/
 │
-prompts/
-├── system_prompt.md  # Executable system prompt for Claude (~700 lines)
-└── few_shot/         # 8 examples (1 per mode)
+├── SKILL.md              # ← The skill. Drop into any agent.
+├── install.sh            # ← One-command install to all agents
+├── install.ps1           # ← Same for Windows
 │
-server.py             # FastAPI REST API (6 endpoints)
-cli.py                # Full CLI with --run, --ab, --retry
-Dockerfile
-pyproject.toml        # PyPI-ready package config
-data/                 # Benchmark dataset + results
-tests/                # 134 unit tests
-```
-
----
-
-## How It Works
-
-### 1. Intent Analysis
-Detects the primary goal (create, fix, explain, analyze, design...), secondary goals, domain (coding, architecture, cybersecurity, writing, chat), and signal triggers.
-
-### 2. Constraint Classification
-Pattern-based detection of hard constraints ("no uses", "sin", "obligatorio", "mantén") → locked. Soft constraints ("preferiblemente", "si puedes") → preferred. Auto-classifies constraint type: technological, structural, format, length, compatibility, style, security, architecture.
-
-### 3. Complexity Scoring
-5-component weighted formula (0-100): constraint count, prompt length, ambiguity, reasoning depth, domain complexity. Determines pipeline intensity.
-
-### 4. Attention Reinforcement Engine (ARE)
-Strategically redistributes critical information: intro reinforcement (primacy effect), middle checkpoint, final reminders (recency effect), priority stacking, pre-response validation checklists.
-
-### 5. Semantic Echo
-Reformulates constraints without verbatim repetition. "No uses React" → "The solution must avoid React frameworks and dependencies entirely." Increases contextual activation without appearing redundant.
-
-### 6. Constraint Lock
-Converts critical restrictions into immutable blocks pinned at top and bottom of the prompt. Prevents the model from forgetting constraints during long generations.
-
-### 7. Reflection Pipeline
-4-stage self-evaluation: intent validation, constraint validation, quality analysis, failure simulation.
-
-### 8. LLM-as-Judge
-Claude Haiku evaluates the final response on constraint adherence, clarity, accuracy, and efficiency. Temperature=0 for deterministic scoring. JSON-structured output. Fallback to keyword critic on parse failure.
-
----
-
-## Development
-
-```bash
-git clone https://github.com/your-org/promptpropulser
-cd promptpropulser
-pip install -e ".[dev]"
-
-# Run all tests
-python -m pytest tests/ -v
-
-# 134 tests across 13 test files
-# Coverage: schemas, config, analyzers, transformers, reflection,
-#           critic (keyword + LLM judge), loop, integration, pipeline, modes
+├── prompts/
+│   ├── system_prompt.md  # ← Load manually into claude.ai Projects
+│   └── few_shot/         #   8 examples (1 per mode)
+│
+├── ppc/                  # Python implementation (advanced)
+│   ├── engine/           #   Orchestrator + Pipeline executor
+│   ├── analyzers/        #   Intent, Constraint, Complexity
+│   ├── transformers/     #   Lock, Echo, Reinforcement, Compression
+│   ├── config/           #   Modes, thresholds, heuristics, guardrails
+│   ├── reflection/       #   4-stage reflection + critic
+│   ├── delivery/         #   Output formatter
+│   ├── integration/      #   Anthropic client, LangChain
+│   ├── benchmark.py      #   24-prompt benchmark runner
+│   ├── loop.py           #   Self-improvement loop
+│   └── critic_llm.py     #   LLM-as-Judge
+│
+├── server.py             # FastAPI REST API
+├── cli.py                # Full CLI
+├── Dockerfile
+├── tests/                # 134 unit tests
+├── data/                 # Benchmark datasets + reports
+├── docs/                 # Architecture specification
+└── tools/                # Benchmark comparison scripts
 ```
 
 ---
 
 ## Philosophy
 
-PPC does not replace the model's reasoning capability. PPC maximizes the quality of the context the model receives.
+PPC does not replace the model's reasoning. PPC maximizes the quality of the context the model receives.
 
 **We optimize:**
 - Attentional focus (primacy + recency effects)
@@ -370,6 +283,17 @@ PPC does not replace the model's reasoning capability. PPC maximizes the quality
 - Replace the underlying LLM
 
 PPC is a **contextual cognition orchestration layer** — middleware between user intent and model execution.
+
+---
+
+## Development
+
+```bash
+git clone https://github.com/Pochonski/promptpropulser
+cd promptpropulser
+pip install -e ".[dev]"
+python -m pytest tests/ -v    # 134 tests
+```
 
 ---
 
